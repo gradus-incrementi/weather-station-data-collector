@@ -19,5 +19,6 @@ app.post("/weather-data", (req, res) => {
 
 // Start the server
 app.listen(port, () => {
+  console.log("Weather Station Data Collector");
   console.log(`Server listening on port ${port}`);
 });

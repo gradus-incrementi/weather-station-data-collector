@@ -11,7 +11,7 @@ COPY package*.json ./
 # Install app dependencies
 RUN npm install
 
-LABEL version="0.3.3"
+LABEL version="0.3.4"
 
 # Bundle app source code inside the container
 COPY . .

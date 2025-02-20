@@ -1,6 +1,6 @@
 {
   "name": "weater-station-data-collector",
-  "version": "1.0.0",
+  "version": "minor",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -14,5 +14,8 @@
   "dependencies": {
     "body-parser": "^1.20.3",
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "simple-git": "^3.27.0"
   }
 }

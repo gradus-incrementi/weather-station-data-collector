@@ -1,6 +1,6 @@
 {
   "name": "weater-station-data-collector",
-  "version": "minor",
+  "version": "0.1.0",
   "main": "server.js",
   "type": "module",
   "scripts": {

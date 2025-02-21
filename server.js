@@ -112,6 +112,31 @@ app.get("/weather-data/all", (req, res) => {
   }
 });
 
+app.get("/weather-data/current", (req, res) => {
+  try {
+    const stmt = db.prepare(`
+      SELECT
+        dateutc, tempf, humidity, windspeedmph, windgustmph, maxdailygust,
+        winddir, uv, solarradiation, battout, tempinf, humidityin,
+        baromrelin, baromabsin
+      FROM weather_data
+      ORDER BY id DESC
+      LIMIT 1
+    `);
+
+    const row = stmt.get();
+
+    if (row) {
+      res.json(row);
+    } else {
+      res.status(404).send("No weather data available");
+    }
+  } catch (err) {
+    console.error("Error retrieving current weather data:", err.message);
+    res.status(500).send("Failed to retrieve current weather data");
+  }
+});
+
 // Catch-all route for 404 errors
 app.use((req, res, next) => {
   console.error(`404 Error: Resource not found for URL ${req.originalUrl}`);

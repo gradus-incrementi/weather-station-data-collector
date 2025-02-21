@@ -18,8 +18,14 @@ app.post("/weather-data", (req, res) => {
 });
 
 app.get("/weather-data", (req, res) => {
-  console.log("Received GET weather data:", req);
+  console.log("Received GET weather data:", req.query);
   res.send("Data received\n");
+});
+
+// Catch-all route for 404 errors
+app.use((req, res, next) => {
+  console.error(`404 Error: Resource not found for URL ${req.originalUrl}`);
+  res.status(404).send("404 Error: Resource not found");
 });
 
 // Start the server

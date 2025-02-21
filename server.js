@@ -17,6 +17,11 @@ app.post("/weather-data", (req, res) => {
   res.send("Data received\n");
 });
 
+app.get("/weather-data", (req, res) => {
+  console.log("Received GET weather data:", req);
+  res.send("Data received\n");
+});
+
 // Start the server
 app.listen(port, () => {
   console.log("Weather Station Data Collector");

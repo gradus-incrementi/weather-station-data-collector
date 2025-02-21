@@ -53,7 +53,9 @@ app.post("/weather-data", (req, res) => {
 });
 
 app.get("/weather-data", (req, res) => {
-  console.log("Received GET weather data:", req.query);
+  const data = req.query;
+  console.log("Received GET weather data:", data);
+
   // Prepare statement using better-sqlite3
   const insert = db.prepare(`
       INSERT INTO weather_data (

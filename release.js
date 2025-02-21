@@ -124,6 +124,9 @@ function notifyPortainer(webhookUrl) {
       "Content-Type": "application/json",
       "Content-Length": data.length,
     },
+    agent: new https.Agent({
+      rejectUnauthorized: false,
+    }),
   };
 
   const req = https.request(options, (res) => {

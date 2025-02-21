@@ -101,6 +101,17 @@ app.get("/weather-data", (req, res) => {
   }
 });
 
+app.get("/weather-data/all", (req, res) => {
+  try {
+    const stmt = db.prepare("SELECT * FROM weather_data");
+    const rows = stmt.all();
+    res.json(rows);
+  } catch (err) {
+    console.error("Error retrieving data:", err.message);
+    res.status(500).send("Failed to retrieve data");
+  }
+});
+
 // Catch-all route for 404 errors
 app.use((req, res, next) => {
   console.error(`404 Error: Resource not found for URL ${req.originalUrl}`);

@@ -4,7 +4,7 @@ const app = express();
 const port = 8080;
 
 // Middleware to parse the body of POST requests
-app.use(bodyParser.text());
+app.use(bodyParser.json());
 
 // Root endpoint
 app.get("/", (req, res) => {

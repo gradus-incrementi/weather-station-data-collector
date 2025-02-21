@@ -64,11 +64,27 @@ async function updateDockerfileVersionLabel(newVersion) {
   console.log(`Updated Dockerfile version label to ${newVersion}`);
 }
 
+async function updateDockerComposeFile(newVersion) {
+  const composeFilePath = "./docker-compose.yaml";
+  const composeFileContent = fs.readFileSync(composeFilePath, "utf-8");
+
+  // Add a version comment or an unused environment variable to reflect current version
+  const updatedComposeContent = composeFileContent.replace(
+    /# Version: .*/,
+    `# Version: ${newVersion}`,
+  );
+
+  fs.writeFileSync(composeFilePath, updatedComposeContent);
+
+  console.log(`Updated docker-compose.yaml with version ${newVersion}`);
+}
+
 async function commitAndPushChanges(newVersion) {
   try {
     // Stage changes
     await git.add("./package.json");
     await git.add("./Dockerfile");
+    await git.add("./docker-compose.yaml");
     await git.commit(`Update version to ${newVersion}`);
     await git.push();
 
@@ -102,6 +118,7 @@ async function release(releaseType) {
       if (answer.toLowerCase() === "y" || answer.toLowerCase() === "yes") {
         await updatePackageVersion(newVersion);
         await updateDockerfileVersionLabel(newVersion);
+        await updateDockerComposeFile(newVersion);
         await commitAndPushChanges(newVersion);
         await tagGitVersion(newVersion);
       } else {

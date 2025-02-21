@@ -2,8 +2,12 @@
 
 import fs from "node:fs";
 import readline from "node:readline";
-import { execSync } from "node:child_process";
 import simpleGit from "simple-git";
+import https from "node:https";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const git = simpleGit();
 const rl = readline.createInterface({
@@ -105,6 +109,38 @@ async function tagGitVersion(newVersion) {
   }
 }
 
+function notifyPortainer(webhookUrl) {
+  const data = JSON.stringify({
+    message: "New version released and pushed",
+  });
+
+  const url = new URL(webhookUrl);
+  const options = {
+    hostname: url.hostname,
+    port: url.port || 443,
+    path: url.pathname,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": data.length,
+    },
+  };
+
+  const req = https.request(options, (res) => {
+    console.log(`Webhook STATUS: ${res.statusCode}`);
+    res.on("data", (d) => {
+      process.stdout.write(d);
+    });
+  });
+
+  req.on("error", (e) => {
+    console.error(`Problem with request: ${e.message}`);
+  });
+
+  req.write(data);
+  req.end();
+}
+
 async function release(releaseType) {
   const currentVersion = readCurrentVersion();
   const newVersion = getNextVersion(currentVersion, releaseType);
@@ -121,6 +157,14 @@ async function release(releaseType) {
         await updateDockerComposeFile(newVersion);
         await commitAndPushChanges(newVersion);
         await tagGitVersion(newVersion);
+
+        // Notify Portainer if the webhook URL is set
+        const webhookUrl = process.env.PORTAINER_WEBHOOK_URL;
+        if (webhookUrl) {
+          notifyPortainer(webhookUrl);
+        } else {
+          console.log("No webhook URL provided, skipping notification.");
+        }
       } else {
         console.log("Version update canceled.");
       }

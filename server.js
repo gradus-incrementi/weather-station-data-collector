@@ -2,12 +2,19 @@ import express from "express";
 import bodyParser from "body-parser";
 import Database from "better-sqlite3";
 import moment from "moment-timezone";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
+
+const timezone = process.env.WEATHER_STATION_TIMEZONE;
+const database_path = process.env.DATABASE_PATH;
 
 const app = express();
 const port = 8080;
 
 // Set up SQLite database with better-sqlite3
-const db = new Database("./data/weather.db", { verbose: console.log });
+const db = new Database(database_path);
 
 // Create the weather_data table if it doesn't exist
 const createTableQuery = `
@@ -38,6 +45,16 @@ CREATE TABLE IF NOT EXISTS weather_data (
 )`;
 
 db.exec(createTableQuery);
+
+const createGrowthDegreeDaysTableQuery = `
+CREATE TABLE IF NOT EXISTS daily_tempature_summary (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  date DATE NOT NULL,
+  high_temp REAL NOT NULL,
+  low_temp REAL NOT NULL
+)`;
+
+db.exec(createGrowthDegreeDaysTableQuery);
 
 // Middleware to parse the body of POST requests
 app.use(bodyParser.json());
@@ -140,23 +157,23 @@ app.get("/weather-data/current", (req, res) => {
 
 // New endpoint to get all weather data for a specific day
 app.get("/weather-data/day", (req, res) => {
-  const { day, timezone } = req.query;
+  const { date } = req.query;
 
-  if (!day || !timezone) {
+  if (!date) {
     return res
       .status(400)
-      .send("Bad Request: 'day' and 'timezone' query parameters are required");
+      .send("Bad Request: The 'date' query parameter is required");
   }
 
   try {
-    // Convert the provided day into the start and end of that day in the given timezone
+    // Convert the provided date into the start and end of that date in the given timezone
     const startOfDay = moment
-      .tz(day, timezone)
+      .tz(date, timezone)
       .startOf("day")
       .utc()
       .format("YYYY-MM-DD HH:mm:ss");
     const endOfDay = moment
-      .tz(day, timezone)
+      .tz(date, timezone)
       .endOf("day")
       .utc()
       .format("YYYY-MM-DD HH:mm:ss");
@@ -175,8 +192,78 @@ app.get("/weather-data/day", (req, res) => {
   }
 });
 
+app.get("/weather-data/daily/summary", async (req, res) => {
+  const { date } = req.query;
+
+  if (!date) {
+    return res
+      .status(400)
+      .send("Bad Request: The 'date' query parameter is required");
+  }
+
+  try {
+    // Check existing data
+    const checkStmt = db.prepare(`
+      SELECT high_temp, low_temp FROM daily_tempature_summary WHERE date = ?
+    `);
+
+    const row = checkStmt.get(date);
+
+    if (row) {
+      // Return existing data
+      return res.json({
+        date,
+        high_temp: row.high_temp,
+        low_temp: row.low_temp,
+      });
+    }
+
+    const startOfDay = moment
+      .tz(date, timezone)
+      .startOf("day")
+      .utc()
+      .format("YYYY-MM-DD HH:mm:ss");
+    const endOfDay = moment
+      .tz(date, timezone)
+      .endOf("day")
+      .utc()
+      .format("YYYY-MM-DD HH:mm:ss");
+
+    const tempStmt = db.prepare(`
+      SELECT MIN(tempf) AS tMin, MAX(tempf) AS tMax
+      FROM weather_data
+      WHERE dateutc BETWEEN ? AND ?
+    `);
+
+    const tempRow = tempStmt.get(startOfDay, endOfDay);
+
+    if (!tempRow || tempRow.tMin === null || tempRow.tMax === null) {
+      return res
+        .status(404)
+        .send("Temperature data not available for the given date.");
+    }
+
+    // Store the result in the database
+    const insertStmt = db.prepare(`
+      INSERT INTO daily_tempature_summary (date, high_temp, low_temp) VALUES (?, ?, ?)
+    `);
+
+    insertStmt.run(date, tempRow.tMax, tempRow.tMin);
+
+    // Return the calculated values
+    return res.json({
+      date,
+      high_temp: tempRow.tMax,
+      low_temp: tempRow.tMin,
+    });
+  } catch (err) {
+    console.error("Error processing daily summary:", err.message);
+    res.status(500).send("Failed to process daily summary");
+  }
+});
+
 // Catch-all route for 404 errors
-app.use((req, res, next) => {
+app.use((req, res) => {
   console.error(`404 Error: Resource not found for URL ${req.originalUrl}`);
   res.status(404).send("404 Error: Resource not found");
 });

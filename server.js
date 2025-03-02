@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import Database from "better-sqlite3";
+import moment from "moment-timezone";
 
 const app = express();
 const port = 8080;
@@ -134,6 +135,43 @@ app.get("/weather-data/current", (req, res) => {
   } catch (err) {
     console.error("Error retrieving current weather data:", err.message);
     res.status(500).send("Failed to retrieve current weather data");
+  }
+});
+
+// New endpoint to get all weather data for a specific day
+app.get("/weather-data/day", (req, res) => {
+  const { day, timezone } = req.query;
+
+  if (!day || !timezone) {
+    return res
+      .status(400)
+      .send("Bad Request: 'day' and 'timezone' query parameters are required");
+  }
+
+  try {
+    // Convert the provided day into the start and end of that day in the given timezone
+    const startOfDay = moment
+      .tz(day, timezone)
+      .startOf("day")
+      .utc()
+      .format("YYYY-MM-DD HH:mm:ss");
+    const endOfDay = moment
+      .tz(day, timezone)
+      .endOf("day")
+      .utc()
+      .format("YYYY-MM-DD HH:mm:ss");
+
+    const stmt = db.prepare(`
+      SELECT * FROM weather_data
+      WHERE dateutc BETWEEN ? AND ?
+    `);
+
+    const rows = stmt.all(startOfDay, endOfDay);
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Error retrieving weather data for the day:", err.message);
+    res.status(500).send("Failed to retrieve weather data for the given day");
   }
 });
 

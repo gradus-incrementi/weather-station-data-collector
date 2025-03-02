@@ -156,7 +156,7 @@ app.get("/weather-data/current", (req, res) => {
 });
 
 // New endpoint to get all weather data for a specific day
-app.get("/weather-data/day", (req, res) => {
+app.get("/weather-data/day/all", (req, res) => {
   const { date } = req.query;
 
   if (!date) {
@@ -192,10 +192,14 @@ app.get("/weather-data/day", (req, res) => {
   }
 });
 
-app.get("/weather-data/daily/summary", async (req, res) => {
+app.get("/weather-data/day/summary", async (req, res) => {
   const { date } = req.query;
+  const currentDate = moment.tz(timezone).format("YYYY-MM-DD");
 
-  if (!date) {
+  // If the date is not provided, use the current date
+  const queryDate = date ? date : currentDate;
+
+  if (!queryDate) {
     return res
       .status(400)
       .send("Bad Request: The 'date' query parameter is required");
@@ -207,7 +211,7 @@ app.get("/weather-data/daily/summary", async (req, res) => {
       SELECT high_temp, low_temp FROM daily_tempature_summary WHERE date = ?
     `);
 
-    const row = checkStmt.get(date);
+    const row = checkStmt.get(queryDate);
 
     if (row) {
       // Return existing data
@@ -219,12 +223,12 @@ app.get("/weather-data/daily/summary", async (req, res) => {
     }
 
     const startOfDay = moment
-      .tz(date, timezone)
+      .tz(queryDate, timezone)
       .startOf("day")
       .utc()
       .format("YYYY-MM-DD HH:mm:ss");
     const endOfDay = moment
-      .tz(date, timezone)
+      .tz(queryDate, timezone)
       .endOf("day")
       .utc()
       .format("YYYY-MM-DD HH:mm:ss");
@@ -243,14 +247,12 @@ app.get("/weather-data/daily/summary", async (req, res) => {
         .send("Temperature data not available for the given date.");
     }
 
-    // Store the result in the database
     const insertStmt = db.prepare(`
       INSERT INTO daily_tempature_summary (date, high_temp, low_temp) VALUES (?, ?, ?)
     `);
 
-    insertStmt.run(date, tempRow.tMax, tempRow.tMin);
+    insertStmt.run(queryDate, tempRow.tMax, tempRow.tMin);
 
-    // Return the calculated values
     return res.json({
       date,
       high_temp: tempRow.tMax,

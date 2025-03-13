@@ -16,58 +16,12 @@ const port = 8080;
 // Set up SQLite database with better-sqlite3
 const db = new Database(database_path);
 
-// Create the weather_data table if it doesn't exist
-const createTableQuery = `
-CREATE TABLE IF NOT EXISTS weather_data (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  passkey TEXT,
-  stationtype TEXT,
-  dateutc TEXT,
-  tempf REAL,
-  humidity INTEGER,
-  windspeedmph REAL,
-  windgustmph REAL,
-  maxdailygust REAL,
-  winddir INTEGER,
-  uv INTEGER,
-  solarradiation REAL,
-  hourlyrainin REAL,
-  eventrainin REAL,
-  dailyrainin REAL,
-  weeklyrainin REAL,
-  monthlyrainin REAL,
-  totalrainin REAL,
-  battout INTEGER,
-  tempinf REAL,
-  humidityin INTEGER,
-  baromrelin REAL,
-  baromabsin REAL
-)`;
-
-db.exec(createTableQuery);
-
-const createGrowthDegreeDaysTableQuery = `
-CREATE TABLE IF NOT EXISTS daily_tempature_summary (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  date DATE NOT NULL,
-  high_temp REAL NOT NULL,
-  low_temp REAL NOT NULL
-)`;
-
-db.exec(createGrowthDegreeDaysTableQuery);
-
 // Middleware to parse the body of POST requests
 app.use(bodyParser.json());
 
 // Root endpoint
 app.get("/", (req, res) => {
   res.send("Welcome to the Weather Station Data Collector\n");
-});
-
-// Endpoint to receive weather data
-app.post("/weather-data", (req, res) => {
-  console.log("Received weather data:", req.body);
-  res.send("Data received\n");
 });
 
 app.get("/weather-data", (req, res) => {
@@ -258,6 +212,37 @@ app.get("/weather-data/day/summary", async (req, res) => {
       high_temp: tempRow.tMax,
       low_temp: tempRow.tMin,
     });
+  } catch (err) {
+    console.error("Error processing daily summary:", err.message);
+    res.status(500).send("Failed to process daily summary");
+  }
+});
+
+// Endpoint for getting a year's worth of daily summaries.
+// If the year is not provided, use the current year.
+app.get("/weather-data/year/daily-summary/:year?", async (req, res) => {
+  try {
+    const year = Number.parseInt(req.params.year, 10) || moment().year();
+    const startOfYear = moment()
+      .year(year)
+      .startOf("year")
+      .utc()
+      .format("YYYY-MM-DD HH:mm:ss");
+    const endOfYear = moment()
+      .year(year)
+      .endOf("year")
+      .utc()
+      .format("YYYY-MM-DD HH:mm:ss");
+
+    const summaryStmt = db.prepare(`
+      SELECT date, high_temp, low_temp
+      FROM daily_tempature_summary
+      WHERE date BETWEEN ? AND ?
+    `);
+
+    const summaries = summaryStmt.all(startOfYear, endOfYear);
+
+    return res.json(summaries);
   } catch (err) {
     console.error("Error processing daily summary:", err.message);
     res.status(500).send("Failed to process daily summary");

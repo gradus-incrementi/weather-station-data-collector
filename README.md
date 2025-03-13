@@ -10,6 +10,54 @@ It stores it in a sqlite3 database.
 
 Then it can server up the weather data that it has collected.
 
+## API
+
+### GET /weather-data
+
+This endpoint actually sets the weather data. It's designed be be compatible with my weather station.
+
+It takes the following URL parameters:
+- PASSKEY
+- stationtype
+- dateutc
+- tempf
+- humidity
+- windspeedmph
+- windgustmph
+- maxdailygust
+- winddir
+- uv
+- solarradiation
+- hourlyrainin
+- eventrainin
+- dailyrainin
+- weeklyrainin
+- monthlyrainin
+- totalrainin
+- battout
+- tempinf
+- humidityin
+- baromrelin
+- baromabsin
+
+### GET /weather-data/all
+
+This endpoint returns all the weather data that has been collected.
+
+### GET /weather-data/current
+
+This endpoint returns the current weather data.
+
+### GET /weather-data/day/all
+
+This endpoint returns all the weather data for a given day.
+
+### GET /weather-data/day/summary
+
+This endpoint returns the summary weather data for a given day.
+
+Pinging it also sets the summary of the weather data for a particular day.
+
 ## Release Script
 
 The release.js script is used to release the weather station data collector.

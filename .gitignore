@@ -9,3 +9,6 @@ node_modules/
 
 # Weather data directory
 data
+
+# Rapid API files
+*.paw

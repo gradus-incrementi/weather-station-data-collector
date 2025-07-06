@@ -20,7 +20,7 @@ const db = new Database(database_path);
 app.use(bodyParser.json());
 
 // Root endpoint
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Welcome to the Weather Station Data Collector\n");
 });
 
@@ -73,7 +73,7 @@ app.get("/weather-data", (req, res) => {
   }
 });
 
-app.get("/weather-data/all", (req, res) => {
+app.get("/weather-data/all", (_req, res) => {
   try {
     const stmt = db.prepare("SELECT * FROM weather_data");
     const rows = stmt.all();
@@ -84,7 +84,7 @@ app.get("/weather-data/all", (req, res) => {
   }
 });
 
-app.get("/weather-data/current", (req, res) => {
+app.get("/weather-data/current", (_req, res) => {
   try {
     const stmt = db.prepare(`
       SELECT

@@ -220,7 +220,7 @@ app.get("/weather-data/day/summary", async (req, res) => {
 
 // Endpoint for getting a year's worth of daily summaries.
 // If the year is not provided, use the current year.
-app.get("/weather-data/year/daily-summary/:year?", async (req, res) => {
+app.get("/weather-data/year/daily-summary{/:year}", async (req, res) => {
   try {
     const year = Number.parseInt(req.params.year, 10) || moment().year();
     const startOfYear = moment()

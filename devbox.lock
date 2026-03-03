@@ -2,55 +2,56 @@
   "lockfile_version": "1",
   "packages": {
     "dbmate@2": {
-      "last_modified": "2025-05-16T20:19:48Z",
-      "resolved": "github:NixOS/nixpkgs/12a55407652e04dcf2309436eb06fef0d3713ef3#dbmate",
+      "last_modified": "2026-02-23T15:40:43Z",
+      "resolved": "github:NixOS/nixpkgs/80d901ec0377e19ac3f7bb8c035201e2e098cc97#dbmate",
       "source": "devbox-search",
-      "version": "2.27.0",
+      "version": "2.31.0",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/qyv07r4wbrwcv2k35d7hyj5r520y6p6p-dbmate-2.27.0",
+              "path": "/nix/store/8wc79mny3v89qvhpw4lqvxa605zximqs-dbmate-2.31.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/qyv07r4wbrwcv2k35d7hyj5r520y6p6p-dbmate-2.27.0"
+          "store_path": "/nix/store/8wc79mny3v89qvhpw4lqvxa605zximqs-dbmate-2.31.0"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/8n262lkcyvjnz1g1xkzvjbikqknv82f0-dbmate-2.27.0",
+              "path": "/nix/store/gssni2z1v0dmqs86hbyxj51gp4g0a4mm-dbmate-2.31.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/8n262lkcyvjnz1g1xkzvjbikqknv82f0-dbmate-2.27.0"
+          "store_path": "/nix/store/gssni2z1v0dmqs86hbyxj51gp4g0a4mm-dbmate-2.31.0"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/sk08h3yl3b54szhy1nnpqfbqhsd321ph-dbmate-2.27.0",
+              "path": "/nix/store/9996h1wnrlqika4ph1wh75a01dyq837g-dbmate-2.31.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/sk08h3yl3b54szhy1nnpqfbqhsd321ph-dbmate-2.27.0"
+          "store_path": "/nix/store/9996h1wnrlqika4ph1wh75a01dyq837g-dbmate-2.31.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/f505dbp35j4gxsg0p9qlzb7zkrwzp83g-dbmate-2.27.0",
+              "path": "/nix/store/0cr3f9f4pwznl207l3v0q35x20bmd2l8-dbmate-2.31.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/f505dbp35j4gxsg0p9qlzb7zkrwzp83g-dbmate-2.27.0"
+          "store_path": "/nix/store/0cr3f9f4pwznl207l3v0q35x20bmd2l8-dbmate-2.31.0"
         }
       }
     },
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
-      "resolved": "github:NixOS/nixpkgs/b62d2a95c72fb068aecd374a7262b37ed92df82b?lastModified=1741708242&narHash=sha256-cNRqdQD4sZpN7JLqxVOze4%2BWsWTmv2DGH0wNCOVwrWc%3D"
+      "last_modified": "2026-03-03T08:03:20Z",
+      "resolved": "github:NixOS/nixpkgs/72b1d820cb0149b40a35aa077b4b6d60cd1b23c3?lastModified=1772525000&narHash=sha256-M7kpjimt0jdEQzmin6ptszf8ev7TVzibyZNSLaLquMM%3D"
     },
     "nodejs@22.14.0": {
       "last_modified": "2025-05-19T23:16:24Z",

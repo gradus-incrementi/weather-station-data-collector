@@ -8,7 +8,21 @@ on:
 jobs:
   build:
     runs-on: debian
+    services:
+      docker:
+        image: docker:dind
+        privileged: true
+        options: >-
+          --driver=overlay2
+          --host=tcp://127.0.0.1:2376
+          --tlsverify --tlscacert=/certs/client/ca.pem
+          --tlscert=/certs/client/cert.pem
+          --tlskey=/certs/client/key.pem
     steps:
+      - name: Install Docker CLI
+        run: |
+          apk add --no-cache docker
+
       - name: Checkout
         uses: actions/checkout@v4
 

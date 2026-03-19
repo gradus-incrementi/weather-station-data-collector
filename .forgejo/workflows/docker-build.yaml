@@ -13,7 +13,6 @@ jobs:
         image: docker:dind
         privileged: true
         options: >-
-          --driver=overlay2
           --host=tcp://127.0.0.1:2376
           --tlsverify --tlscacert=/certs/client/ca.pem
           --tlscert=/certs/client/cert.pem

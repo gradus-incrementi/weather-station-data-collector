@@ -8,19 +8,12 @@ on:
 jobs:
   build:
     runs-on: debian
-    services:
-      docker:
-        image: docker:dind
-        privileged: true
-        options: >-
-          --host=tcp://127.0.0.1:2376
-          --tlsverify --tlscacert=/certs/client/ca.pem
-          --tlscert=/certs/client/cert.pem
-          --tlskey=/certs/client/key.pem
+    container: docker:24.0.7-cli
     steps:
-      - name: Install Docker CLI
+      - name: Set up Docker host
         run: |
-          apk add --no-cache docker
+          echo "Using Docker daemon at $DOCKER_HOST"
+          docker info
 
       - name: Checkout
         uses: actions/checkout@v4

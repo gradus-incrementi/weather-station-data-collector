@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: debian
-    container: docker-build-image:latest
+    container: localhost/docker-build-image:latest
     steps:
       - name: Set up Docker host
         run: |

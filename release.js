@@ -3,11 +3,6 @@
 import fs from "node:fs";
 import readline from "node:readline";
 import simpleGit from "simple-git";
-import https from "node:https";
-import dotenv from "dotenv";
-
-// Load environment variables from .env file
-dotenv.config();
 
 const git = simpleGit();
 const rl = readline.createInterface({
@@ -109,41 +104,6 @@ async function tagGitVersion(newVersion) {
   }
 }
 
-function notifyPortainer(webhookUrl) {
-  const data = JSON.stringify({
-    message: "New version released and pushed",
-  });
-
-  const url = new URL(webhookUrl);
-  const options = {
-    hostname: url.hostname,
-    port: url.port || 443,
-    path: url.pathname,
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Content-Length": data.length,
-    },
-    agent: new https.Agent({
-      rejectUnauthorized: false,
-    }),
-  };
-
-  const req = https.request(options, (res) => {
-    console.log(`Webhook STATUS: ${res.statusCode}`);
-    res.on("data", (d) => {
-      process.stdout.write(d);
-    });
-  });
-
-  req.on("error", (e) => {
-    console.error(`Problem with request: ${e.message}`);
-  });
-
-  req.write(data);
-  req.end();
-}
-
 async function release(releaseType) {
   const currentVersion = readCurrentVersion();
   const newVersion = getNextVersion(currentVersion, releaseType);
@@ -160,14 +120,6 @@ async function release(releaseType) {
         await updateDockerComposeFile(newVersion);
         await commitAndPushChanges(newVersion);
         await tagGitVersion(newVersion);
-
-        // Notify Portainer if the webhook URL is set
-        const webhookUrl = process.env.PORTAINER_WEBHOOK_URL;
-        if (webhookUrl) {
-          notifyPortainer(webhookUrl);
-        } else {
-          console.log("No webhook URL provided, skipping notification.");
-        }
       } else {
         console.log("Version update canceled.");
       }
@@ -176,19 +128,24 @@ async function release(releaseType) {
   );
 }
 
+const VALID_RELEASE_TYPES = ["major", "minor", "patch"];
 const releaseType = process.argv[2];
 
-if (releaseType) {
-  try {
-    release(releaseType);
-  } catch (error) {
-    console.error(
-      "An error occurred during the release process:",
-      error.message,
-    );
-  }
-} else {
-  console.error(
-    "Please specify a release type. Usage: node release.js <major|minor|patch>",
-  );
+if (!releaseType) {
+  console.error("Error: No release type specified.");
+  console.error("Usage: node release.js <major|minor|patch>");
+  process.exit(1);
+}
+
+if (!VALID_RELEASE_TYPES.includes(releaseType)) {
+  console.error(`Error: Invalid release type "${releaseType}".`);
+  console.error(`Valid types are: ${VALID_RELEASE_TYPES.join(", ")}`);
+  process.exit(1);
+}
+
+try {
+  await release(releaseType);
+} catch (error) {
+  console.error("An error occurred during the release process:", error.message);
+  process.exit(1);
 }

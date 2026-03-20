@@ -12,13 +12,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "better-sqlite3": "^12.6.2",
+    "better-sqlite3": "^12.8.0",
     "body-parser": "^2.2.2",
     "express": "^5.2.1",
-    "moment-timezone": "^0.6.0"
+    "moment-timezone": "^0.6.1"
   },
   "devDependencies": {
     "dotenv": "^17.3.1",
-    "simple-git": "^3.32.3"
+    "simple-git": "^3.33.0"
   }
 }
